@@ -1,8 +1,16 @@
--e git+https://github.com/StasOverflow/flask_homework.git@8001d4b8cb4f0972f3616cbcb0cf0fdc029ad423#egg=blog
+atomicwrites==1.3.0
+attrs==19.1.0
+-e git+https://github.com/StasOverflow/flask_homework.git@5aac1336e9e0e5ed41bc652587e56e738ffde2f2#egg=blog
 Click==7.0
+coverage==4.5.3
 Flask==1.0.2
 itsdangerous==1.1.0
 Jinja2==2.10
 MarkupSafe==1.1.1
+more-itertools==6.0.0
+pluggy==0.9.0
+py==1.8.0
+pytest==4.3.1
 python-dotenv==0.10.1
+six==1.12.0
 Werkzeug==0.14.1

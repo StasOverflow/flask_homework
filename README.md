@@ -1,6 +1,6 @@
 To run Flask do the following
 ~~~
--Add environment variavles
+-Add environment variables
     
    $ export FLASK_APP=blog
    $ export FLASK_ENV=development
