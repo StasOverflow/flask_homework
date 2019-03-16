@@ -1,6 +1,8 @@
+-e git+https://github.com/StasOverflow/flask_homework.git@8001d4b8cb4f0972f3616cbcb0cf0fdc029ad423#egg=blog
 Click==7.0
 Flask==1.0.2
 itsdangerous==1.1.0
 Jinja2==2.10
 MarkupSafe==1.1.1
+python-dotenv==0.10.1
 Werkzeug==0.14.1
