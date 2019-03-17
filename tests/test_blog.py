@@ -13,13 +13,13 @@ def test_index(client, auth):
     assert b'test title' in response.data
     assert b'by test on 2018-01-01' in response.data
     assert b'test\nbody' in response.data
-    assert b'href="/1/update"' in response.data
+    assert b'href="/post/update/1"' in response.data
 
 
 @pytest.mark.parametrize('path', (
-    '/create',
-    '/1/update',
-    '/1/delete',
+    '/post/create',
+    '/post/update/1',
+    '/post/delete/1',
 ))
 def test_login_required(client, path):
     response = client.post(path)
@@ -35,15 +35,15 @@ def test_author_required(app, client, auth):
 
     auth.login()
     # current user can't modify other user's post
-    assert client.post('/1/update').status_code == 403
-    assert client.post('/1/delete').status_code == 403
+    assert client.post('/post/update/1').status_code == 403
+    assert client.post('/post/delete/1').status_code == 403
     # current user doesn't see edit link
-    assert b'href="/1/update"' not in client.get('/').data
+    assert b'href="/update/1"' not in client.get('/').data
 
 
 @pytest.mark.parametrize('path', (
-    '/2/update',
-    '/2/delete',
+    '/post/update/2',
+    '/post/delete/2',
 ))
 def test_exists_required(client, auth, path):
     auth.login()
@@ -52,8 +52,8 @@ def test_exists_required(client, auth, path):
 
 def test_create(client, auth, app):
     auth.login()
-    assert client.get('/create').status_code == 200
-    client.post('/create', data={'title': 'created', 'body': ''})
+    assert client.get('/post/create').status_code == 200
+    client.post('/post/create', data={'title': 'created', 'body': ''})
 
     with app.app_context():
         db = get_db()
@@ -63,8 +63,8 @@ def test_create(client, auth, app):
 
 def test_update(client, auth, app):
     auth.login()
-    assert client.get('/1/update').status_code == 200
-    client.post('/1/update', data={'title': 'updated', 'body': ''})
+    assert client.get('/post/update/1').status_code == 200
+    client.post('/post/update/1', data={'title': 'updated', 'body': ''})
 
     with app.app_context():
         db = get_db()
@@ -73,8 +73,8 @@ def test_update(client, auth, app):
 
 
 @pytest.mark.parametrize('path', (
-    '/create',
-    '/1/update',
+    '/post/create',
+    '/post/update/1',
 ))
 def test_create_update_validate(client, auth, path):
     auth.login()
@@ -84,7 +84,7 @@ def test_create_update_validate(client, auth, path):
 
 def test_delete(client, auth, app):
     auth.login()
-    response = client.post('/1/delete')
+    response = client.post('/post/delete/1')
     assert response.headers['Location'] == 'http://localhost/'
 
     with app.app_context():
@@ -94,28 +94,24 @@ def test_delete(client, auth, app):
 
 
 def test_post_detail(client, auth, app):
-    assert client.get('/1/post').status_code == 200
+    assert client.get('/post/1').status_code == 200
     with app.app_context():
         db = get_db()
         post = db.execute('SELECT * FROM post WHERE id = 1').fetchone()
-        response = client.get('/1/post')
-        print(response.data)
-        print(post)
+        response = client.get('/post/1')
         assert bytes(post['title'], 'UTF-8') in response.data
-        assert b'href="/1/update"' not in client.get('/').data
+        assert b'href="/post/update/1"' not in client.get('/').data
         # redirects to login page, as @login_required deco is set
-        assert client.get('/1/update').status_code == 302
+        assert client.get('/post/update/1').status_code == 302
 
 
 def test_post_detail_logged_in(client, auth, app):
     with app.app_context():
         auth.login()
-        assert client.get('/1/post').status_code == 200
+        assert client.get('/post/1').status_code == 200
         db = get_db()
         post = db.execute('SELECT * FROM post WHERE id = 1').fetchone()
-        response = client.get('/1/post')
-        print(response.data)
-        print(post)
+        response = client.get('/post/1')
         assert bytes(post['title'], 'UTF-8') in response.data
-        assert b'href="/1/update"' in client.get('/').data
-        assert client.get('/1/update').status_code == 200
+        assert b'href="/post/update/1"' in client.get('/').data
+        assert client.get('/post/update/1').status_code == 200
