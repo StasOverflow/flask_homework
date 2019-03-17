@@ -92,3 +92,30 @@ def test_delete(client, auth, app):
         post = db.execute('SELECT * FROM post WHERE id = 1').fetchone()
         assert post is None
 
+
+def test_post_detail(client, auth, app):
+    assert client.get('/1/post').status_code == 200
+    with app.app_context():
+        db = get_db()
+        post = db.execute('SELECT * FROM post WHERE id = 1').fetchone()
+        response = client.get('/1/post')
+        print(response.data)
+        print(post)
+        assert bytes(post['title'], 'UTF-8') in response.data
+        assert b'href="/1/update"' not in client.get('/').data
+        # redirects to login page, as @login_required deco is set
+        assert client.get('/1/update').status_code == 302
+
+
+def test_post_detail_logged_in(client, auth, app):
+    with app.app_context():
+        auth.login()
+        assert client.get('/1/post').status_code == 200
+        db = get_db()
+        post = db.execute('SELECT * FROM post WHERE id = 1').fetchone()
+        response = client.get('/1/post')
+        print(response.data)
+        print(post)
+        assert bytes(post['title'], 'UTF-8') in response.data
+        assert b'href="/1/update"' in client.get('/').data
+        assert client.get('/1/update').status_code == 200
